@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contacto | Actualidad Noticias</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="estilos/styles.css">
+</head>
+<body>
+
+  <!-- ========== ENCABEZADO ========== -->
+  <header class="encabezado">
+    <nav class="navbar navbar-expand-lg navbar-dark py-3">
+      <div class="container">
+        <a class="logo-sitio" href="index.html">
+          <span class="acento">▲</span> Actualidad <span class="acento">Noticias</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menuPrincipal">
+          <ul class="navbar-nav ms-auto menu-navegacion">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="agregar.html"><i class="bi bi-plus-circle"></i> Agregar Noticia</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="listado.html"><i class="bi bi-star"></i> Destacadas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link activo" href="contacto.html"><i class="bi bi-envelope"></i> Contacto</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ========== CONTENIDO ========== -->
+  <main class="container py-4 py-md-5">
+    <div class="text-center mb-4">
+      <p class="text-secondary text-uppercase small mb-1" style="letter-spacing:2px;">Contáctanos</p>
+      <h1 class="titulo-pagina">Ponte en contacto con nosotros</h1>
+      <p class="subtitulo-pagina">
+        ¿Tienes alguna pregunta, comentario o información para compartir?<br>
+        Estamos aquí para escucharte.
+      </p>
+    </div>
+
+    <!-- Alerta de éxito (oculta por defecto) -->
+    <div id="alerta-exito" class="alerta-exito text-center">
+      <i class="bi bi-check-circle-fill me-2"></i>
+      ¡Mensaje enviado con éxito! Te responderemos lo antes posible.
+    </div>
+
+    <!-- Formulario de contacto -->
+    <div class="caja-contacto">
+      <p class="text-secondary small mb-4 text-center">
+        Completa el formulario y nos pondremos en contacto contigo.
+      </p>
+
+      <form id="formulario-contacto" novalidate>
+        <!-- Nombre -->
+        <div class="mb-3">
+          <label for="campo-nombre" class="form-label">
+            <i class="bi bi-person"></i> Nombre
+          </label>
+          <input
+            type="text"
+            id="campo-nombre"
+            class="form-control campo-formulario"
+            placeholder="Tu nombre"
+            required
+            minlength="2"
+          >
+        </div>
+
+        <!-- Correo -->
+        <div class="mb-3">
+          <label for="campo-correo" class="form-label">
+            <i class="bi bi-envelope"></i> Correo electrónico
+          </label>
+          <input
+            type="email"
+            id="campo-correo"
+            class="form-control campo-formulario"
+            placeholder="tu@email.com"
+            required
+          >
+        </div>
+
+        <!-- Mensaje -->
+        <div class="mb-3">
+          <label for="campo-mensaje" class="form-label">
+            <i class="bi bi-chat-left-text"></i> Mensaje
+          </label>
+          <textarea
+            id="campo-mensaje"
+            class="form-control campo-formulario"
+            rows="5"
+            placeholder="Escribe tu mensaje aquí..."
+            required
+            minlength="20"
+          ></textarea>
+          <div class="form-text text-secondary">Mínimo 20 caracteres.</div>
+        </div>
+
+        <!-- Botón enviar -->
+        <button type="submit" class="boton-enviar">
+          Enviar mensaje <i class="bi bi-send"></i>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- ========== PIE ========== -->
+  <footer class="pie-pagina">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6 mb-3 mb-md-0">
+          <a href="index.html" class="logo-sitio mb-2 d-inline-block">
+            <span class="acento">▲</span> Actualidad <span class="acento">Noticias</span>
+          </a>
+          <p class="text-secondary small mb-0">© 2026 Actualidad Noticias. Todos los derechos reservados.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <a href="contacto.html" class="me-3">Contacto</a>
+          <a href="#" class="me-3">Privacidad</a>
+          <a href="#" class="me-3">Términos de uso</a>
+          <span class="redes-sociales">
+            <a href="#"><i class="bi bi-twitter-x"></i></a>
+            <a href="#"><i class="bi bi-facebook"></i></a>
+            <a href="#"><i class="bi bi-youtube"></i></a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
