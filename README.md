@@ -69,7 +69,7 @@ Actualidad_Noticias/
 
 ## Qué debes hacer paso a paso
 
-### 1. Requisitos en tu computador
+### 1. Requisitos en tu computadorss
 
 Instala:
 
