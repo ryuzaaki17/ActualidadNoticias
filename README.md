@@ -1,44 +1,28 @@
 # Actualidad Noticias
 
-**Proyecto Front-End — Institución Universitaria Politécnico Grancolombiano**  
-**Asignatura:** Front-End  
+**Proyecto Full-Stack Serverless — Institución Universitaria Politécnico Grancolombiano**  
+**Asignatura:** Front-End (evolución a Backend)  
 **Estudiante:** Jeisson Arley López Barrientos  
-**Profesor:** John Olarte  
 **Programa:** Ingeniería de Software  
 **Año:** 2026
 
 ---
 
-## Descripción del proyecto
+## Descripción
 
-**Actualidad Noticias** es una plataforma web de noticias orientada al consumo interactivo de información del día. Su principal diferenciador es el sistema de votación **“Destacar”**: los usuarios votan por las noticias que consideran más relevantes y, a mayor cantidad de votos, mayor es el tamaño visual de la tarjeta en la página de inicio.
+**Actualidad Noticias** es una plataforma de noticias con sistema de votación **“Destacar”**.  
+Los usuarios pueden **pegar el enlace de cualquier noticia** de internet y el sistema:
 
-El diseño sigue una estética **editorial moderna en modo oscuro**, con una paleta basada en negro profundo, blanco y el color de acento rojo `#E63946`.
+1. Extrae automáticamente título, imagen, resumen, fuente, fecha y categoría (**web scraping**).
+2. Muestra una vista previa para revisar.
+3. Guarda la noticia en **Azure Cosmos DB**.
+4. La publica en el portal.
 
-### Funcionalidades principales
+Todo funciona con arquitectura **serverless** en Azure:
 
-- Página de inicio con grid tipo masonry (tamaño de tarjetas según votos)
-- Sistema de votación “Destacar”
-- Efecto visual sutil de movimiento en las tarjetas
-- Listado de todas las noticias con **filtro por categoría**
-- Vista de detalle de cada noticia
-- Agregar noticia mediante URL (simulación de scraping)
-- Página de contacto con validación de formulario
-- Diseño responsive con Bootstrap 5
-
----
-
-## Tecnologías utilizadas
-
-| Tecnología | Uso |
-|------------|-----|
-| **HTML5** | Estructura de las páginas |
-| **CSS3** | Estilos personalizados (clases en español) |
-| **JavaScript (ES6+)** | Interactividad, votación, filtros, formularios |
-| **Bootstrap 5** | Layout responsive, navbar, grid y utilidades |
-| **Bootstrap Icons** | Iconografía |
-
-> Solo se utilizan estas tecnologías. No hay frameworks adicionales ni backend real.
+- Front-end estático → **Azure Static Web Apps**
+- API (scraping + CRUD) → **Azure Functions**
+- Base de datos → **Azure Cosmos DB** (opcional en desarrollo)
 
 ---
 
@@ -46,61 +30,193 @@ El diseño sigue una estética **editorial moderna en modo oscuro**, con una pal
 
 ```
 Actualidad_Noticias/
-├── index.html          # Página de inicio (Home)
-├── listado.html        # Todas las noticias + filtros por categoría
-├── detalle.html        # Vista de detalle de una noticia
-├── agregar.html        # Agregar noticia desde un enlace (URL)
-├── contacto.html       # Formulario de contacto
-├── estilos             # Carpeta de archivos de estilos css
-├──── styles.css          # Estilos personalizados del sitio
-├── js                  # Carpeta de archivos JS
-├──── script.js           # Lógica JavaScript compartida
-└── README.md           # Este archivo
+├── index.html                 # Página de inicio (grid dinámico)
+├── listado.html               # Todas las noticias + filtros
+├── detalle.html               # Vista de detalle + votar
+├── agregar.html               # Pegar URL → scraping → publicar
+├── contacto.html              # Formulario de contacto
+├── estilos/
+│   └── styles.css
+├── js/
+│   └── script.js              # Lógica front + llamadas a /api
+├── api/                       # ← Azure Functions
+│   ├── package.json
+│   ├── host.json
+│   ├── local.settings.json    # Variables de entorno (local)
+│   ├── shared/
+│   │   └── db.js              # Conexión Cosmos DB + fallback memoria
+│   ├── extraer/               # POST /api/extraer
+│   ├── noticias/              # GET/POST /api/noticias
+│   ├── noticia/               # GET /api/noticias/{id}
+│   └── votar/                 # POST /api/noticias/{id}/votar
+├── staticwebapp.config.json   # Configuración Azure Static Web Apps
+└── README.md
 ```
 
 ---
 
-## Descripción de cada archivo
+## Endpoints de la API
 
-### `index.html`
-Página principal del sitio. Muestra las noticias del día en un **grid dinámico tipo masonry**. El tamaño de cada tarjeta (`tarjeta-pequena`, `tarjeta-mediana` o `tarjeta-grande`) depende de la cantidad de votos “Destacar”. Incluye el header de navegación, el título “Noticias del día” y el footer.
-
-### `listado.html`
-Vista secundaria que lista **todas las noticias** publicadas. Incluye botones de filtro por categoría (Política, Economía, Internacional, Sociedad, Tecnología, Deportes). Al hacer clic en una categoría, el listado se actualiza dinámicamente.
-
-### `detalle.html`
-Muestra el contenido completo de una noticia seleccionada: imagen hero, título, fecha, fuente, categoría, cuerpo del artículo y un panel lateral con el botón **“Destacar esta noticia”**, opciones de guardar/compartir y enlace para volver al inicio. La noticia se carga según el parámetro `?id=` de la URL.
-
-### `agregar.html`
-Permite publicar una nueva noticia **pegando un enlace (URL)**. Al procesar, se simula un proceso de scraping que extrae título, imagen, resumen y fuente. Se muestra una vista previa y, tras confirmar, se simula la publicación.
-
-### `contacto.html`
-Formulario de contacto con campos Nombre, Correo electrónico y Mensaje. Incluye **validación en tiempo real** (campos obligatorios, formato de correo y mínimo de 20 caracteres en el mensaje). Al enviar correctamente se muestra un mensaje de confirmación.
-
-### `styles.css`
-Hoja de estilos personalizada del proyecto. Define variables CSS (colores, bordes, sombras), el tema oscuro, los tamaños de las tarjetas del Home, el overlay de las imágenes, los formularios, el panel de acciones del detalle y estilos responsive. Las **clases propias están escritas en español** y el código está comentado.
-
-### `script.js`
-Lógica JavaScript compartida por todas las páginas. Contiene:
-- Datos de ejemplo de noticias
-- Renderizado del grid del Home y del listado
-- Carga del detalle según el ID
-- Sistema de votación “Destacar”
-- Simulación de scraping en Agregar Noticia
-- Validación del formulario de contacto
-- Filtros por categoría en el listado
-- Marcado del enlace activo en el menú
+| Método | Ruta                        | Descripción                          |
+|--------|-----------------------------|--------------------------------------|
+| POST   | `/api/extraer`              | Scraping de una URL                  |
+| GET    | `/api/noticias`             | Listar todas las noticias            |
+| POST   | `/api/noticias`             | Crear una noticia                    |
+| GET    | `/api/noticias/{id}`        | Obtener una noticia por ID           |
+| POST   | `/api/noticias/{id}/votar`  | Sumar 1 voto (“Destacar”)            |
 
 ---
 
-## Navegación del sitio
+## Qué debes hacer paso a paso
 
-| Sección | Archivo | Descripción |
-|---------|---------|-------------|
-| Inicio | `index.html` | Noticias del día con tarjetas de tamaño variable |
-| Agregar Noticia | `agregar.html` | Publicar noticia desde un link |
-| Destacadas | `listado.html` | Listado completo + filtros por categoría |
-| Contacto | `contacto.html` | Formulario de contacto validado |
+### 1. Requisitos en tu computadorss
+
+Instala:
+
+- [Node.js 18+](https://nodejs.org/)
+- [Azure Functions Core Tools v4](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local)
+  ```bash
+  npm install -g azure-functions-core-tools@4 --unsafe-perm true
+  ```
+- [Azure Static Web Apps CLI](https://azure.github.io/static-web-apps-cli/) (opcional pero recomendado)
+  ```bash
+  npm install -g @azure/static-web-apps-cli
+  ```
+- Cuenta de GitHub
+- Cuenta de Azure (ya la tienes)
+
+### 2. Probar en local (sin Azure todavía)
+
+```bash
+# 1. Entra a la carpeta del proyecto
+cd Actualidad_Noticias
+
+# 2. Instala dependencias de las Functions
+cd api
+npm install
+cd ..
+
+# 3. Arranca todo junto (front + api)
+swa start . --api-location api
+```
+
+Abre http://localhost:4280
+
+> Si no tienes el CLI de SWA, puedes arrancar solo las functions:
+> ```bash
+> cd api
+> func start
+> ```
+> Y servir el front con cualquier servidor estático (Live Server, `npx serve`, etc.).  
+> En ese caso cambia temporalmente `API_BASE` en `js/script.js` a `http://localhost:7071/api`.
+
+**Nota:** Sin Cosmos DB configurado el sistema usa **memoria RAM**. Las noticias se pierden al reiniciar, pero todo funciona para probar el scraping.
+
+### 3. Crear Cosmos DB en Azure (recomendado)
+
+1. Entra al [Portal de Azure](https://portal.azure.com).
+2. Crea un recurso **Azure Cosmos DB** → API **Core (SQL)**.
+3. Elige el plan **Serverless** (pago por uso, ideal para estudiantes).
+4. Una vez creado:
+   - Ve a **Keys** y copia:
+     - `URI` → será `COSMOS_ENDPOINT`
+     - `PRIMARY KEY` → será `COSMOS_KEY`
+5. Crea una base de datos llamada `ActualidadNoticias` y un contenedor `noticias` (partition key: `/id`).
+
+### 4. Configurar variables de entorno locales
+
+Edita `api/local.settings.json`:
+
+```json
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "COSMOS_ENDPOINT": "https://TU-CUENTA.documents.azure.com:443/",
+    "COSMOS_KEY": "TU_PRIMARY_KEY_AQUI",
+    "COSMOS_DATABASE": "ActualidadNoticias",
+    "COSMOS_CONTAINER": "noticias"
+  },
+  "Host": {
+    "CORS": "*"
+  }
+}
+```
+
+### 5. Subir el proyecto a GitHub
+
+```bash
+git init
+git add .
+git commit -m "Actualidad Noticias - versión serverless"
+git branch -M main
+git remote add origin https://github.com/TU_USUARIO/actualidad-noticias.git
+git push -u origin main
+```
+
+> **Importante:** no subas `api/local.settings.json` con las keys reales.  
+> Agrégalo al `.gitignore` si aún no está.
+
+### 6. Crear Azure Static Web App
+
+1. Portal Azure → **Create a resource** → busca **Static Web App**.
+2. Configuración recomendada:
+   - **Name:** actualidad-noticias
+   - **Plan:** Free
+   - **Source:** GitHub
+   - Autoriza y selecciona tu repositorio + rama `main`
+   - **Build Presets:** Custom
+   - **App location:** `/` (raíz)
+   - **Api location:** `api`
+   - **Output location:** (déjalo vacío)
+3. Crea el recurso.
+
+Azure automáticamente:
+- Detectará las Functions
+- Hará el build
+- Te dará una URL pública tipo: `https://tu-app.azurestaticapps.net`
+
+### 7. Configurar Cosmos en la Static Web App (producción)
+
+1. Ve a tu Static Web App → **Configuration** → **Application settings**.
+2. Agrega las mismas variables:
+   - `COSMOS_ENDPOINT`
+   - `COSMOS_KEY`
+   - `COSMOS_DATABASE` = `ActualidadNoticias`
+   - `COSMOS_CONTAINER` = `noticias`
+3. Guarda. Se reiniciará la app.
+
+### 8. ¡Listo!
+
+Abre la URL de tu Static Web App y prueba:
+
+1. Ve a **Agregar Noticia**
+2. Pega un link real (ej: una noticia de El Tiempo, BBC, etc.)
+3. Espera la extracción
+4. Publica
+5. Verás la noticia en Inicio y podrás votarla
+
+---
+
+## Tecnologías utilizadas
+
+| Capa          | Tecnología                          |
+|---------------|-------------------------------------|
+| Front-end     | HTML5, CSS3, JavaScript, Bootstrap 5 |
+| API           | Azure Functions (Node.js 18)        |
+| Scraping      | axios + cheerio (meta tags + selectores) |
+| Base de datos | Azure Cosmos DB (SQL API)           |
+| Hosting       | Azure Static Web Apps               |
+| CI/CD         | GitHub Actions (automático)         |
+
+---
+
+## Limitaciones del scraping
+
+- Funciona muy bien con sitios que usan **Open Graph** (`og:title`, `og:image`, etc.).
+- Algunos sitios con mucho JavaScript o protección anti-bot pueden fallar.
+- Para producción más robusta se puede migrar a **Playwright** o **Puppeteer**, pero consume más recursos.
 
 ---
 
@@ -108,5 +224,4 @@ Lógica JavaScript compartida por todas las páginas. Contiene:
 
 **Jeisson Arley López Barrientos**  
 Estudiante de Ingeniería de Software  
-Institución Universitaria Politécnico Grancolombiano  
-Asignatura: Front-End — 2026
+Institución Universitaria Politécnico Grancolombiano

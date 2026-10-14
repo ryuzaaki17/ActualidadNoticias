@@ -1,0 +1,2 @@
+- Proyecto Actualidad Noticias: front-end maquetado (HTML/CSS/JS Bootstrap) + backend serverless Azure Static Web Apps + Azure Functions (Node) + Cosmos DB. Scraping con axios+cheerio. Estructura en /home/workdir/artifacts con carpeta api/ [2026-10-13]
+- Arquitectura elegida: Opción B serverless. Endpoints: /api/extraer, /api/noticias, /api/noticias/{id}, /api/noticias/{id}/votar. Fallback a memoria si no hay Cosmos configurado. [2026-10-13]
