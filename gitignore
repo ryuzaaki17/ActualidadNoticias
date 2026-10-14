@@ -1,6 +1,5 @@
 # Azure Functions
 api/local.settings.json
-api/api/local.settings.json
 api/node_modules/
 api/.python_packages/
 
