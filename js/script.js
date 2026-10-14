@@ -110,9 +110,9 @@ async function cargarNoticias() {
 
   try {
     const res = await fetch(`${API_BASE}/noticias`);
-    if (!res.ok) throw new Error("API no disponible");
-    const data = await res.json();
-    // Si la BD está vacía, devolvemos los de ejemplo para que el sitio no se vea vacío
+    const texto = await res.text();
+    if (!res.ok || !texto || !texto.trim()) throw new Error("API no disponible");
+    const data = JSON.parse(texto);
     noticiasCache = (Array.isArray(data) && data.length > 0) ? data : noticiasEjemplo;
   } catch (err) {
     console.warn("[API] Usando datos de ejemplo (la API no respondió):", err.message);
@@ -232,10 +232,15 @@ function inicializarFiltros() {
 
 /* ---------- Página Detalle ---------- */
 async function renderizarDetalle() {
+  // Solo ejecutar si estamos realmente en la página de detalle
+  const contenedor = document.getElementById("contenido-detalle");
+  if (!contenedor) return;
+
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
+
   if (!id) {
-    document.getElementById("contenido-detalle").innerHTML = `
+    contenedor.innerHTML = `
       <div class="text-center py-5">
         <h2>Noticia no encontrada</h2>
         <a href="index.html" class="btn mt-3" style="background:var(--color-acento);color:white;">Volver al inicio</a>
@@ -247,7 +252,7 @@ async function renderizarDetalle() {
   const noticia = await obtenerNoticiaPorId(id);
 
   if (!noticia) {
-    document.getElementById("contenido-detalle").innerHTML = `
+    contenedor.innerHTML = `
       <div class="text-center py-5">
         <h2>Noticia no encontrada</h2>
         <a href="index.html" class="btn mt-3" style="background:var(--color-acento);color:white;">Volver al inicio</a>
@@ -258,18 +263,24 @@ async function renderizarDetalle() {
 
   const imgHero = document.getElementById("imagen-hero");
   if (imgHero) {
-    imgHero.src = noticia.imagen;
-    imgHero.alt = noticia.titulo;
+    imgHero.src = noticia.imagen || "";
+    imgHero.alt = noticia.titulo || "";
   }
 
-  document.getElementById("titulo-detalle").textContent = noticia.titulo;
-  document.getElementById("fecha-detalle").textContent = noticia.fecha;
-  document.getElementById("fuente-detalle").textContent = noticia.fuente;
-  document.getElementById("categoria-detalle").textContent = noticia.categoria;
+  const setText = (idEl, valor) => {
+    const el = document.getElementById(idEl);
+    if (el) el.textContent = valor || "";
+  };
 
-  document.getElementById("cuerpo-noticia").innerHTML = `
-    <p>${noticia.contenido || noticia.resumen || ""}</p>
-  `;
+  setText("titulo-detalle", noticia.titulo);
+  setText("fecha-detalle", noticia.fecha);
+  setText("fuente-detalle", noticia.fuente);
+  setText("categoria-detalle", noticia.categoria);
+
+  const cuerpo = document.getElementById("cuerpo-noticia");
+  if (cuerpo) {
+    cuerpo.innerHTML = `<p>${noticia.contenido || noticia.resumen || ""}</p>`;
+  }
 
   const contador = document.getElementById("contador-votos-detalle");
   if (contador) contador.textContent = formatearNumero(noticia.votos || 0);
@@ -285,17 +296,15 @@ async function renderizarDetalle() {
         if (res.ok) {
           const actualizada = await res.json();
           noticia.votos = actualizada.votos;
-          contador.textContent = formatearNumero(actualizada.votos);
+          if (contador) contador.textContent = formatearNumero(actualizada.votos);
           this.innerHTML = `<i class="bi bi-check-lg"></i> ¡Destacada! (${formatearNumero(actualizada.votos)})`;
-          // Invalidar caché para que el home se actualice
           noticiasCache = null;
         } else {
           throw new Error("Error al votar");
         }
       } catch {
-        // Fallback local si la API no está
         noticia.votos = (noticia.votos || 0) + 1;
-        contador.textContent = formatearNumero(noticia.votos);
+        if (contador) contador.textContent = formatearNumero(noticia.votos);
         this.innerHTML = `<i class="bi bi-check-lg"></i> ¡Destacada! (${formatearNumero(noticia.votos)})`;
       }
     });
@@ -330,10 +339,21 @@ function inicializarAgregar() {
           body: JSON.stringify(datosExtraidos)
         });
 
-        const creada = await res.json();
+        const texto = await res.text();
+        let creada = null;
+        if (texto && texto.trim()) {
+          try {
+            creada = JSON.parse(texto);
+          } catch {
+            throw new Error(`Respuesta inválida al guardar (HTTP ${res.status})`);
+          }
+        } else {
+          throw new Error(`Respuesta vacía al guardar (HTTP ${res.status})`);
+        }
+
         if (!res.ok) throw new Error(creada.error || "Error al guardar");
 
-        noticiasCache = null; // invalidar caché
+        noticiasCache = null;
 
         estadoPrevia.className = "estado-previa exito";
         estadoPrevia.innerHTML = `<i class="bi bi-check-circle-fill"></i> ¡Noticia publicada correctamente!`;
@@ -384,8 +404,22 @@ function inicializarAgregar() {
         body: JSON.stringify({ url })
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "No se pudo extraer la información");
+      // Leer como texto primero para evitar "Unexpected end of JSON input"
+      const texto = await res.text();
+      let data = null;
+      if (texto && texto.trim()) {
+        try {
+          data = JSON.parse(texto);
+        } catch {
+          throw new Error(`La API respondió con formato inválido (HTTP ${res.status}). Respuesta: ${texto.slice(0, 120)}`);
+        }
+      } else {
+        throw new Error(`La API respondió vacío (HTTP ${res.status}). ¿Se desplegaron bien las Functions? Prueba abrir /api/noticias en el navegador.`);
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error || data.detalle || `Error HTTP ${res.status}`);
+      }
 
       datosExtraidos = data;
 
@@ -404,6 +438,7 @@ function inicializarAgregar() {
       botonProcesar.disabled = false;
 
     } catch (err) {
+      console.error("Error al extraer:", err);
       estadoPrevia.className = "estado-previa error";
       estadoPrevia.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ${err.message}`;
       vistaPrevia.classList.add("visible");
@@ -492,18 +527,20 @@ function marcarMenuActivo() {
 document.addEventListener("DOMContentLoaded", () => {
   marcarMenuActivo();
 
-  const path = window.location.pathname;
+  const path = window.location.pathname.toLowerCase();
+  const page = path.split("/").pop() || "";
 
-  if (path.endsWith("index.html") || path.endsWith("/") || path === "") {
+  // Detectar página de forma más robusta (funciona también con Azure SWA)
+  if (page === "" || page === "index.html" || page === "index") {
     renderizarHome();
-  } else if (path.includes("listado")) {
+  } else if (page.includes("listado")) {
     renderizarListado();
     inicializarFiltros();
-  } else if (path.includes("detalle")) {
+  } else if (page.includes("detalle") || document.getElementById("contenido-detalle")) {
     renderizarDetalle();
-  } else if (path.includes("agregar")) {
+  } else if (page.includes("agregar") || document.getElementById("formulario-agregar")) {
     inicializarAgregar();
-  } else if (path.includes("contacto")) {
+  } else if (page.includes("contacto") || document.getElementById("formulario-contacto")) {
     inicializarContacto();
   }
 });
