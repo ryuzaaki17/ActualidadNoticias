@@ -1,0 +1,14 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "COSMOS_ENDPOINT": "https://actualidad-noticias-db.documents.azure.com:443/",
+    "COSMOS_KEY": "b3qAJ4kdCaNZQ4WOUA1MEqNoyL6C6ZWunH1Qz9TxvqTqZswjnyUgiN5tgKxm5W4INtkEb6rRXkkEACDbC9aV3Q==",
+    "COSMOS_DATABASE": "ActualidadNoticias",
+    "COSMOS_CONTAINER": "noticias"
+  },
+  "Host": {
+    "CORS": "*"
+  }
+}

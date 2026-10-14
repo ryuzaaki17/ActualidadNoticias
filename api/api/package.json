@@ -1,0 +1,19 @@
+{
+  "name": "actualidad-noticias-api",
+  "version": "1.0.0",
+  "description": "Azure Functions API para Actualidad Noticias - scraping y gestión de noticias",
+  "main": "index.js",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.0.0",
+    "axios": "^1.7.7",
+    "cheerio": "^1.0.0",
+    "uuid": "^10.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
