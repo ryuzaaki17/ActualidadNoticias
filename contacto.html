@@ -66,40 +66,45 @@
       <form id="formulario-contacto" novalidate>
         <!-- Nombre -->
         <div class="mb-3">
-          <label for="campo-nombre" class="form-label">
+          <label for="nombre" class="form-label">
             <i class="bi bi-person"></i> Nombre
           </label>
           <input
             type="text"
-            id="campo-nombre"
+            id="nombre"
+            name="nombre"
             class="form-control campo-formulario"
             placeholder="Tu nombre"
             required
             minlength="2"
           >
+          <div class="mensaje-validacion d-none"></div>
         </div>
 
         <!-- Correo -->
         <div class="mb-3">
-          <label for="campo-correo" class="form-label">
+          <label for="correo" class="form-label">
             <i class="bi bi-envelope"></i> Correo electrónico
           </label>
           <input
             type="email"
-            id="campo-correo"
+            id="correo"
+            name="correo"
             class="form-control campo-formulario"
             placeholder="tu@email.com"
             required
           >
+          <div class="mensaje-validacion d-none"></div>
         </div>
 
         <!-- Mensaje -->
         <div class="mb-3">
-          <label for="campo-mensaje" class="form-label">
+          <label for="mensaje" class="form-label">
             <i class="bi bi-chat-left-text"></i> Mensaje
           </label>
           <textarea
-            id="campo-mensaje"
+            id="mensaje"
+            name="mensaje"
             class="form-control campo-formulario"
             rows="5"
             placeholder="Escribe tu mensaje aquí..."
@@ -107,10 +112,11 @@
             minlength="20"
           ></textarea>
           <div class="form-text text-secondary">Mínimo 20 caracteres.</div>
+          <div class="mensaje-validacion d-none"></div>
         </div>
 
         <!-- Botón enviar -->
-        <button type="submit" class="boton-enviar">
+        <button type="submit" class="boton-enviar" id="boton-enviar-contacto">
           Enviar mensaje <i class="bi bi-send"></i>
         </button>
       </form>
@@ -129,8 +135,8 @@
         </div>
         <div class="col-md-6 text-md-end">
           <a href="contacto.html" class="me-3">Contacto</a>
-          <a href="#" class="me-3">Privacidad</a>
-          <a href="#" class="me-3">Términos de uso</a>
+          <a href="privacidad.html" class="me-3">Privacidad</a>
+          <a href="terminos.html" class="me-3">Términos de uso</a>
           <span class="redes-sociales">
             <a href="#"><i class="bi bi-twitter-x"></i></a>
             <a href="#"><i class="bi bi-facebook"></i></a>

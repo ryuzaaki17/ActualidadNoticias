@@ -309,6 +309,75 @@ async function renderizarDetalle() {
       }
     });
   }
+
+  // --- Compartir noticia ---
+  const botonCompartir = document.getElementById("boton-compartir");
+  if (botonCompartir) {
+    botonCompartir.addEventListener("click", async function (e) {
+      e.preventDefault();
+      const url = window.location.href;
+      const titulo = noticia.titulo || "Noticia de Actualidad Noticias";
+      const texto = noticia.resumen || titulo;
+
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: titulo, text: texto, url });
+          return;
+        }
+      } catch (err) {
+        // Usuario canceló o error: seguir con fallback
+        if (err && err.name === "AbortError") return;
+      }
+
+      // Fallback: copiar enlace al portapapeles
+      try {
+        await navigator.clipboard.writeText(url);
+        const original = this.innerHTML;
+        this.innerHTML = `<i class="bi bi-check-lg"></i> ¡Enlace copiado!`;
+        setTimeout(() => { this.innerHTML = original; }, 2000);
+      } catch {
+        // Último recurso: prompt con el enlace
+        prompt("Copia este enlace para compartir la noticia:", url);
+      }
+    });
+  }
+
+  // --- Guardar noticia (localStorage) ---
+  const botonGuardar = document.getElementById("boton-guardar");
+  const textoGuardar = document.getElementById("texto-guardar");
+  if (botonGuardar) {
+    const clave = "noticias_guardadas";
+    let guardadas = [];
+    try {
+      guardadas = JSON.parse(localStorage.getItem(clave) || "[]");
+    } catch { guardadas = []; }
+
+    const yaGuardada = guardadas.includes(noticia.id);
+    if (yaGuardada && textoGuardar) {
+      textoGuardar.textContent = "Guardada";
+      botonGuardar.querySelector("i")?.classList.replace("bi-bookmark", "bi-bookmark-fill");
+    }
+
+    botonGuardar.addEventListener("click", function (e) {
+      e.preventDefault();
+      let lista = [];
+      try {
+        lista = JSON.parse(localStorage.getItem(clave) || "[]");
+      } catch { lista = []; }
+
+      const idx = lista.indexOf(noticia.id);
+      if (idx >= 0) {
+        lista.splice(idx, 1);
+        if (textoGuardar) textoGuardar.textContent = "Guardar noticia";
+        this.querySelector("i")?.classList.replace("bi-bookmark-fill", "bi-bookmark");
+      } else {
+        lista.push(noticia.id);
+        if (textoGuardar) textoGuardar.textContent = "Guardada";
+        this.querySelector("i")?.classList.replace("bi-bookmark", "bi-bookmark-fill");
+      }
+      localStorage.setItem(clave, JSON.stringify(lista));
+    });
+  }
 }
 
 /* ---------- Página Agregar: scraping real ---------- */
@@ -493,18 +562,43 @@ function inicializarContacto() {
   form.addEventListener("submit", function (e) {
     e.preventDefault();
 
+    if (!nombre || !correo || !mensaje) return;
+
     const okNombre = validarCampo(nombre, nombre.value.trim().length >= 2, "Ingresa al menos 2 caracteres");
     const okCorreo = validarCampo(correo, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.value), "Ingresa un correo válido");
     const okMensaje = validarCampo(mensaje, mensaje.value.trim().length >= 20, "El mensaje debe tener al menos 20 caracteres");
 
     if (okNombre && okCorreo && okMensaje) {
+      const boton = document.getElementById("boton-enviar-contacto") || form.querySelector('button[type="submit"]');
+      if (boton) {
+        boton.disabled = true;
+        boton.innerHTML = `<span class="spinner-carga"></span> Enviando...`;
+      }
+
+      // Abre el cliente de correo del usuario con el mensaje listo para papismoon@gmail.com
+      const asunto = encodeURIComponent("Contacto desde Actualidad Noticias");
+      const cuerpo = encodeURIComponent(
+        `Nombre: ${nombre.value.trim()}\n` +
+        `Correo: ${correo.value.trim()}\n\n` +
+        `Mensaje:\n${mensaje.value.trim()}`
+      );
+      window.location.href = `mailto:papismoon@gmail.com?subject=${asunto}&body=${cuerpo}`;
+
       const alerta = document.getElementById("alerta-exito");
       if (alerta) {
-        alerta.classList.remove("d-none");
-        form.reset();
-        [nombre, correo, mensaje].forEach(i => {
-          i.classList.remove("es-valido", "es-invalido");
-        });
+        alerta.classList.add("visible");
+        alerta.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i>
+          Se abrió tu cliente de correo. Revisa y envía el mensaje a <strong>papismoon@gmail.com</strong>.`;
+      }
+      form.reset();
+      [nombre, correo, mensaje].forEach(i => {
+        if (i) i.classList.remove("es-valido", "es-invalido");
+      });
+      if (boton) {
+        setTimeout(() => {
+          boton.disabled = false;
+          boton.innerHTML = `Enviar mensaje <i class="bi bi-send"></i>`;
+        }, 2000);
       }
     }
   });

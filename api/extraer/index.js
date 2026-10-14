@@ -147,18 +147,29 @@ module.exports = async function (context, req) {
     const fuente =
       $('meta[property="og:site_name"]').attr("content") || extraerDominio(url);
 
-    const textoCompleto = (titulo + " " + resumen).toLowerCase();
+    const textoCompleto = (titulo + " " + resumen + " " + url).toLowerCase();
+    const path = (urlObj.pathname || "").toLowerCase();
+
+    // Preferir categoría por ruta del medio (ej. /politica/, /deportes/)
     let categoria = "Sociedad";
-    if (/pol[ií]tica|gobierno|congreso|presidente|elecciones|partido/.test(textoCompleto))
+    if (/\/politica|\/gobierno|\/elecciones|\/congreso/.test(path) ||
+        /pol[ií]tica|gobierno|congreso|presidente|ministro|ministra|elecciones|partido|senado|fiscal[ií]a|justicia|denuncia|alcalde|gobernador|petro|uribe/.test(textoCompleto))
       categoria = "Política";
-    else if (/econom[ií]a|mercado|inflaci[oó]n|banco|d[oó]lar|empleo|pib/.test(textoCompleto))
+    else if (/\/economia|\/negocios|\/finanzas/.test(path) ||
+        /econom[ií]a|mercado|inflaci[oó]n|banco|d[oó]lar|empleo|pib|bolsa|impuesto|tribut/.test(textoCompleto))
       categoria = "Economía";
-    else if (/deportes?|f[uú]tbol|gol|partido|liga|mundial|ol[ií]mpic/.test(textoCompleto))
+    else if (/\/deportes?|\/futbol|\/sports/.test(path) ||
+        /deportes?|f[uú]tbol|gol|liga|mundial|ol[ií]mpic|tenis|baloncesto|ciclismo|atleta/.test(textoCompleto))
       categoria = "Deportes";
-    else if (/tecnolog[ií]a|ia |inteligencia artificial|app|software|startup|digital/.test(textoCompleto))
+    else if (/\/tecnolog|\/tech|\/ciencia/.test(path) ||
+        /tecnolog[ií]a|inteligencia artificial|\bia\b|app |software|startup|digital|ciber|robot|chip|internet/.test(textoCompleto))
       categoria = "Tecnología";
-    else if (/internacional|mundo|guerra|otan|onu|europa|eeuu|china/.test(textoCompleto))
+    else if (/\/internacional|\/mundo|\/exterior/.test(path) ||
+        /internacional|guerra|otan|onu|europa|ee\.?uu|china|rusia|ucrania|medio oriente/.test(textoCompleto))
       categoria = "Internacional";
+    else if (/\/salud|\/cultura|\/educacion|\/sociedad|\/medioambiente/.test(path) ||
+        /salud|hospital|vacuna|educaci[oó]n|cultura|medio ambiente|clima|protesta/.test(textoCompleto))
+      categoria = "Sociedad";
 
     let contenido = "";
     $("article p, .article-body p, .noticia-cuerpo p, .content p").each((_, el) => {
